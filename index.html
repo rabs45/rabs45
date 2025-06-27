@@ -1,0 +1,2386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Sidebar - CompareHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="hero-carousel-animations.css">
+ <style>
+        /* =================================
+           BASE & BODY STYLES
+        ================================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            padding-top: 120px; /* Space for fixed header */
+        }
+
+        /* =================================
+           HEADER STYLES
+        ================================= */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 998;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            gap: 20px;
+            min-height: 70px;
+        }
+
+        .sidebar-toggle {
+            background: linear-gradient(135deg, #232f3e 100%);
+            color: white;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .sidebar-toggle:hover::before {
+            left: 100%;
+        }
+
+        .sidebar-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo-image {
+            height: 50px;
+            width: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .logo-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+
+        #search-form {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        #search-form:focus-within {
+            border-color: #4285f4;
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.2);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background: transparent;
+            color: #333;
+        }
+
+        .search-input::placeholder {
+            color: #888;
+            font-weight: 400;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, #ff0000 100%);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .search-button:hover::before {
+            left: 100%;
+        }
+
+        .search-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Search Suggestions Enhanced */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            margin-top: 8px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            border: 1px solid #e0e0e0;
+        }
+
+        .search-suggestions.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .suggestions-header {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .all-results {
+            font-weight: 600;
+            color: #4285f4;
+        }
+
+        .search-query {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .suggestions-grid {
+            padding: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* --- Centered Category Nav --- */
+        .category-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 20px;
+            background: linear-gradient(135deg, #232f3e 100%);
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .category-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-nav a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .category-nav a:hover::before {
+            transform: translateX(0);
+        }
+
+        .category-nav a:hover,
+        .category-nav a.active {
+            color: white;
+            border-bottom-color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .category-nav a i {
+            font-size: 14px;
+        }
+
+
+        /* =================================
+           SIDEBAR STYLES
+        ================================= */
+        .sidebar {
+            position: fixed;
+            left: -320px;
+            top: 0;
+            width: 320px;
+            height: 100vh;
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            overflow-y: auto;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        /* User Greeting Enhanced */
+        .user-greeting {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 16px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-greeting::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            pointer-events: none;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+            z-index: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .sign-out {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            display: inline-block;
+        }
+
+        .sign-out:hover {
+            background: rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+        }
+
+        /* Login Button Enhanced */
+        .sidebar-login {
+            padding: 0;
+            background: transparent;
+        }
+
+        .login-btn {
+            display: block;
+            padding: 20px 16px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        }
+
+        .login-btn i {
+            margin-right: 10px;
+        }
+
+        /* Sidebar Header Enhanced */
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 16px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .close-sidebar:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* Menu Content Enhanced */
+        .menu-content {
+            padding: 8px 0;
+        }
+
+        .menu-items {
+            list-style: none;
+        }
+
+        .item {
+            position: relative;
+        }
+
+        .submenu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .submenu-item:hover {
+            background: #f8f9fa;
+            border-left-color: #4285f4;
+        }
+
+        .submenu-item span {
+            font-weight: 500;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .submenu-item i {
+            color: #666;
+            transition: transform 0.2s ease;
+        }
+
+        .item.active .submenu-item i {
+            transform: rotate(90deg);
+        }
+
+        /* Submenu Enhanced */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8f9fa;
+        }
+
+        .item.active .submenu {
+            max-height: 500px;
+        }
+
+        .menu-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            font-weight: 600;
+            color: #4285f4;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-title:hover {
+            background: #f0f0f0;
+        }
+
+        .submenu .item a {
+            display: block;
+            padding: 12px 24px;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+        }
+
+        .submenu .item a:hover {
+            background: white;
+            color: #4285f4;
+            border-left-color: #4285f4;
+            transform: translateX(4px);
+        }
+
+        /* Nested Submenu */
+        .submenu .submenu {
+            background: #f0f0f0;
+        }
+
+        .submenu .submenu .item a {
+            padding-left: 32px;
+            font-size: 13px;
+        }
+
+        /* Sidebar Footer Enhanced */
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .cookie-notice {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .cookie-notice p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .accept-cookies {
+            background: #4285f4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .accept-cookies:hover {
+            background: #3367d6;
+        }
+
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Search in Sidebar */
+        .sidebar-search {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .sidebar-search input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .sidebar-search input:focus {
+            border-color: #4285f4;
+        }
+
+
+        /* =================================
+           MAIN CONTENT & DEMO AREA
+        ================================= */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - 120px);
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .demo-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .demo-content h1 {
+            color: #333;
+            margin-bottom: 16px;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .demo-content p {
+            color: #666;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        /* =================================
+           DEALS & PRODUCT CAROUSEL
+        ================================= */
+        /* Enhanced Deals Section */
+        .deals-section {
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #4285f4, #34a853);
+            border-radius: 2px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            color: #333;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .section-title::before {
+            content: "🔥";
+            font-size: 1.6rem;
+            animation: flame 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes flame {
+            0% { transform: scale(1) rotate(-3deg); }
+            100% { transform: scale(1.1) rotate(3deg); }
+        }
+
+        /* Products Carousel Container */
+        .products-carousel {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            background: #fff;
+            padding: 25px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .products-slider {
+            position: relative;
+            width: 100%;
+            height: auto;
+            min-height: 420px;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            position: relative;
+        }
+
+        /* Product Cards */
+        .product-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            height: 420px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .product-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(66, 133, 244, 0.08) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            border-radius: 16px;
+        }
+
+        .product-card:hover::before {
+            opacity: 1;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: rgba(66, 133, 244, 0.3);
+        }
+
+        .product-image {
+            position: relative;
+            height: 200px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .product-card img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .product-card:hover img {
+            transform: scale(1.15) rotate(3deg);
+        }
+
+        .product-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-name {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 600;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+            min-height: 48px;
+        }
+
+        .price-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
+
+        .original-price {
+            font-size: 0.9rem;
+            color: #999;
+            text-decoration: line-through;
+            font-weight: 400;
+        }
+
+        .current-price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #d73502;
+            text-shadow: 0 1px 2px rgba(215, 53, 2, 0.1);
+        }
+
+        .discount {
+            background: linear-gradient(135deg, #ea4335 0%, #d73502 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #ffa41c;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .rating-text {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .view-deal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            margin-top: auto;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-deal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .view-deal-btn:hover::before {
+            left: 100%;
+        }
+
+        .view-deal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(66, 133, 244, 0.4);
+        }
+
+        .view-deal-btn::after {
+            content: "→";
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .view-deal-btn:hover::after {
+            transform: translateX(4px);
+        }
+
+        /* Carousel Controls */
+        .carousel-controls {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            /* REMOVED: padding: 0 -15px; (This was invalid CSS) */
+            pointer-events: none;
+        }
+
+        .carousel-prev,
+        .carousel-next {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            outline: none;
+            box-shadow: 0 6px 20px rgba(66, 133, 244, 0.3);
+            pointer-events: all;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-prev::before,
+        .carousel-next::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .carousel-prev:hover::before,
+        .carousel-next:hover::before {
+            transform: scale(1);
+        }
+
+        .carousel-prev:hover,
+        .carousel-next:hover {
+            transform: scale(1.15) translateY(-3px);
+            box-shadow: 0 12px 30px rgba(66, 133, 244, 0.5);
+        }
+
+        .carousel-prev {
+            left: -27px;
+        }
+
+        .carousel-next {
+            right: -27px;
+        }
+
+        /* Carousel Indicators */
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(66, 133, 244, 0.06);
+            border-radius: 30px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(66, 133, 244, 0.3);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            transform: scale(1.4);
+            border-color: rgba(66, 133, 244, 0.2);
+            box-shadow: 0 0 15px rgba(66, 133, 244, 0.5);
+        }
+
+        .indicator.active::before {
+            background: white;
+            width: 4px;
+            height: 4px;
+        }
+
+        .indicator:hover {
+            transform: scale(1.2);
+            background: rgba(66, 133, 244, 0.6);
+        }
+
+        /* Loading State */
+        .loading-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 420px;
+        }
+
+        .spinner-container {
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4285f4;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            background: #232f3e;
+            color: #dddddd;
+            padding: 60px 0 0;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #ffffff;
+            position: relative;
+            padding-bottom: 12px;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: #4285f4;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-section ul li a {
+            color: #dddddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+        
+        .footer-bottom {
+            background: #1a252f;
+            padding: 24px 0;
+            margin-top: 50px;
+            border-top: 1px solid #3a4553;
+        }
+
+        .footer-bottom p {
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+            margin: 0 20px;
+        }
+
+        /* Social Icons Section */
+        .social-icons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-icons a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 12px;
+        }
+
+        .social-icons a:hover::before {
+            opacity: 1;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+            color: #ffffff;
+        }
+
+        .social-icons a i {
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Newsletter Section */
+        .newsletter-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .newsletter-section h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 8px;
+            flex-direction: column;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .newsletter-form input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .newsletter-form input:focus {
+            border-color: #4285f4;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(66, 133, 244, 0.3);
+        }
+
+        .newsletter-form button {
+            padding: 14px 24px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter-form button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .newsletter-form button:hover::before {
+            left: 100%;
+        }
+
+        .newsletter-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66, 133, 244, 0.4);
+        }
+
+        /* Footer Bottom */
+        .footer-bottom {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 24px 0;
+            margin-top: 50px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer-bottom p {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+
+        /* =================================
+           RESPONSIVE & MEDIA QUERIES
+        ================================= */
+        @media (max-width: 1199px) and (min-width: 1024px) {
+            .slide {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 18px;
+            }
+            .product-card {
+                height: 400px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .category-nav {
+                padding: 0 10px;
+            }
+            .category-nav a {
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 1023px) and (min-width: 768px) {
+            .slide {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+            .product-card {
+                height: 380px;
+            }
+            .product-image {
+                height: 180px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding-top: 110px;
+            }
+            .header-top {
+                padding: 10px 16px;
+                gap: 12px;
+            }
+            .search-container {
+                max-width: none;
+            }
+            .search-input {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+            .search-button {
+                padding: 12px 16px;
+            }
+            .category-nav {
+                justify-content: center;
+                padding: 0 4vw;
+            }
+            .category-nav a {
+                padding: 10px 10px;
+                font-size: 14px;
+            }
+            .logo-image {
+                height: 40px;
+            }
+            .sidebar {
+                width: 280px;
+            }
+            .footer {
+                padding: 40px 0 0;
+                margin-top: 60px;
+            }
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 0 16px;
+            }
+            .footer-section {
+                text-align: center;
+                padding: 16px 0;
+            }
+            .footer-section h3 {
+                font-size: 1.2rem;
+                margin-bottom: 20px;
+            }
+            .footer-section h3::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .social-icons {
+                justify-content: center;
+                margin-bottom: 24px;
+            }
+            .newsletter-form {
+                max-width: 100%;
+            }
+            .newsletter-form input,
+            .newsletter-form button {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+            .footer-bottom {
+                padding: 20px 0;
+                margin-top: 40px;
+            }
+            .footer-bottom p {
+                font-size: 0.85rem;
+                padding: 0 16px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .newsletter-form {
+                flex-direction: row;
+            }
+            .newsletter-form input {
+                min-width: 0;
+            }
+            .newsletter-form button {
+                white-space: nowrap;
+            }
+        }
+        
+        @media (max-width: 767px) and (min-width: 481px) {
+            .slide {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+            .product-card {
+                height: 360px;
+            }
+            .product-image {
+                height: 160px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding-top: 130px;
+            }
+            .header-top {
+                flex-wrap: wrap;
+                padding: 8px 12px;
+            }
+            .search-container {
+                order: 3;
+                width: 100%;
+                margin-top: 8px;
+            }
+            .category-nav {
+                justify-content: center;
+                padding: 0 2vw;
+            }
+            .category-nav a {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+            .slide {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .product-card {
+                height: 380px;
+                max-width: 100%;
+            }
+            .product-image {
+                height: 180px;
+            }
+            .product-info {
+                padding: 16px;
+            }
+            .current-price {
+                font-size: 1.2rem;
+            }
+            .view-deal-btn {
+                padding: 12px 18px;
+                font-size: 0.8rem;
+            }
+        }
+
+
+        /* =================================
+           ANIMATIONS & KEYFRAMES
+        ================================= */
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+            <div class="logo">
+                <a href="#" class="logo-link">
+                    <img src="https://comparehub-smartphone-images.s3.af-south-1.amazonaws.com/IMG_20250625_174144.jpg" alt="CompareHubPrices" class="logo-image">
+                </a>
+            </div>
+            <div class="search-container">
+                <form id="search-form" onsubmit="performSearch(event)">
+                    <input type="text" name="q" class="search-input" placeholder="What are you shopping for?" id="searchInput">
+                    <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
+                </form>
+                <div class="search-suggestions" id="searchSuggestions">
+                    <div class="suggestions-header">
+                        <span class="all-results">All</span>
+                        <span class="search-query" id="searchQuery">results</span>
+                    </div>
+                    <div class="suggestions-grid" id="suggestionsGrid"></div>
+                </div>
+            </div>
+        </div>
+        <nav class="category-nav">
+            <a href="#best-deals" class="active"><i class="fas fa-fire"></i> Best deals</a>
+            <a href="#new-arrivals"><i class="fas fa-certificate"></i> New Arrivals</a>
+            <a href="#daily-deals"><i class="fas fa-gift"></i> Daily Deals</a>
+        </nav>
+    </header>
+
+    <div class="main-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-login" id="sidebarLogin"></div>
+            <div class="sidebar-search">
+                <input type="text" placeholder="Search categories..." id="sidebarSearchInput">
+            </div>
+            <div class="sidebar-header">
+                <h3>Browse Categories</h3>
+                <button class="close-sidebar" onclick="closeSidebar()">&times;</button>
+            </div>
+            <div class="menu-content">
+                <ul class="menu-items">
+                    <li class="item">
+                        <div class="submenu-item" onclick="toggleSubmenu(this)">
+                            <span><i class=""></i> Cellphones & Tablets</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                        <ul class="menu-items submenu">
+                            <div class="menu-title" onclick="goBack(this)"><i class="fa-solid fa-chevron-left"></i> Cellphones & Tablets</div>
+                            <li class="item"><a href="#smartphones">Smartphones</a></li>
+                            <li class="item"><a href="#tablets">Tablets</a></li>
+                            <li class="item"><a href="#phone-accessories">Accessories</a></li>
+                        </ul>
+                    </li>
+                    <li class="item">
+                         <div class="submenu-item" onclick="toggleSubmenu(this)">
+                            <span><i class=""></i> Computers & Accessories</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                        <ul class="menu-items submenu">
+                            <div class="menu-title" onclick="goBack(this)"><i class="fa-solid fa-chevron-left"></i> Computers & Accessories</div>
+                            <li class="item"><a href="#printers">Printers</a></li>
+                            <li class="item"><a href="#monitors">Monitors</a></li>
+                            <li class="item"><a href="#keyboards-mice">Keyboards & Mice</a></li>
+                            <li class="item"><a href="#storage-devices">Storage Devices</a></li>
+                            <li class="item"><a href="#computer-speakers">Computer Speakers</a></li>
+                            <li class="item"><a href="#webcams">Webcams</a></li>
+                        </ul>
+                    </li>
+                    <li class="item">
+                        <div class="submenu-item" onclick="toggleSubmenu(this)">
+                            <span><i class=""></i> TV & Streaming</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                        <ul class="menu-items submenu">
+                            <div class="menu-title" onclick="goBack(this)"><i class="fa-solid fa-chevron-left"></i> TV & Streaming</div>
+                            <li class="item"><a href="#televisions">Televisions</a></li>
+                            <li class="item"><a href="#streaming-devices">Streaming Devices</a></li>
+                            <li class="item"><a href="#tv-mounts">TV Mounts</a></li>
+                            <li class="item"><a href="#remote-controls">Remote Controls</a></li>
+                        </ul>
+                    </li>
+                     <li class="item">
+                        <div class="submenu-item" onclick="toggleSubmenu(this)">
+                            <span><i class=""></i> Appliances</span>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </div>
+                        <ul class="menu-items submenu">
+                            <div class="menu-title" onclick="goBack(this)"><i class="fa-solid fa-chevron-left"></i> Appliances</div>
+                            <li class="item">
+                                <div class="submenu-item" onclick="toggleSubmenu(this)">
+                                    <span>Kitchen Appliances</span>
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </div>
+                                <ul class="menu-items submenu">
+                                    <div class="menu-title" onclick="goBack(this)"><i class="fa-solid fa-chevron-left"></i> Kitchen Appliances</div>
+                                    <li class="item"><a href="#refrigerators">Refrigerators</a></li>
+                                    <li class="item"><a href="#microwaves">Microwaves</a></li>
+                                    <li class="item"><a href="#coffee-machines">Coffee Machines</a></li>
+                                    <li class="item"><a href="#blenders">Blenders</a></li>
+                                </ul>
+                            </li>
+                            <li class="item"><a href="#vacuum-cleaners">Vacuum Cleaners</a></li>
+                            <li class="item"><a href="#air-conditioners">Air Conditioners</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="sidebar-footer">
+                <div class="cookie-notice">
+                    <p>This website uses cookies to provide you with the best experience.</p>
+                    <button class="accept-cookies" onclick="acceptCookies()">Accept</button>
+                </div>
+            </div>
+        </nav>
+        
+        <main class="content">
+            <section class="hero-carousel">
+                <div class="hero-slides">
+                    <div class="hero-slide active">
+                        <a href="https://www.takealot.com/black-friday" target="_blank" class="hero-slide-link">
+                            <picture>
+                                <source media="(max-width: 480px)" srcset="https://consumer.huawei.com/dam/content/dam/huawei-cbg-site/ecommerce/za/2025/June/MEGA/WAP-1080x1152.webp">
+                                <source media="(max-width: 768px)" srcset="https://consumer.huawei.com/dam/content/dam/huawei-cbg-site/ecommerce/za/2025/June/MEGA/WAP-1080x1152.webp">
+                                <img src="https://consumer.huawei.com/dam/content/dam/huawei-cbg-site/ecommerce/za/2025/June/MEGA/WEB--3840x1136.webp" alt="Black Friday Deals" class="hero-image">
+                            </picture>
+                        </a>
+                    </div>
+                    <div class="hero-slide">
+                        <a href="https://www.amazon.com/prime-day" target="_blank" class="hero-slide-link">
+                            <picture>
+                                <source media="(max-width: 480px)" srcset="https://hisense.co.za/wp-content/uploads/2025/05/100KV_1920x800-1024x427.jpg">
+                                <source media="(max-width: 768px)" srcset="https://www.asus.com/WebsitesBanner/ZA/banners/store/acizy7bp3pbajipj/acizy7bp3pbajipj-0_0_tablet_0_1X.jpg?webp">
+                                <img src="https://www.defy.co.za/content/dam/defy/za/images-defy-homepage/desktop/Defy_Homepage_Desktop-Blog-Article-Hero-1.png/jcr:content/renditions/original" alt="Prime Day Deals" class="hero-image">
+                            </picture>
+                        </a>
+                    </div>
+                    <div class="hero-slide">
+                         <a href="https://www.takealot.com/tech-deals" target="_blank" class="hero-slide-link">
+                            <picture>
+                                <source media="(max-width: 480px)" srcset="https://www.asus.com/WebsitesBanner/ZA/banners/store/acizy7bp3pbajipj/acizy7bp3pbajipj-0_0_mobile_0_1X.jpg?webp">
+                                <source media="(max-width: 768px)" srcset="https://www.asus.com/WebsitesBanner/ZA/banners/store/acizy7bp3pbajipj/acizy7bp3pbajipj-0_0_tablet_0_1X.jpg?webp">
+                                <img src="https://www.asus.com/WebsitesBanner/ZA/banners/store/acizy7bp3pbajipj/acizy7bp3pbajipj-0_0_desktop_0_1X.jpg?webp" alt="Tech Deals" class="hero-image">
+                            </picture>
+                        </a>
+                    </div>
+                    <div class="hero-slide">
+                         <a href="https://www.amazon.com/home-appliances" target="_blank" class="hero-slide-link">
+                            <picture>
+                                <source media="(max-width: 480px)" srcset="https://www.asus.com/WebsitesBanner/ZA/banners/store/mh69pfka5ufjjdyj/mh69pfka5ufjjdyj-0_0_mobile_0_1X.jpg">
+                                <source media="(max-width: 768px)" srcset="https://www.asus.com/WebsitesBanner/ZA/banners/store/mh69pfka5ufjjdyj/mh69pfka5ufjjdyj-0_0_tablet_0_1X.jpg">
+                                <img src="https://www.asus.com/WebsitesBanner/ZA/banners/store/mh69pfka5ufjjdyj/mh69pfka5ufjjdyj-0_0_desktop_0_1X.jpg" alt="Home Appliances Sale" class="hero-image">
+                            </picture>
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-nav">
+                    <button class="hero-nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="hero-nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="hero-indicators">
+                    <span class="hero-indicator active" data-slide="0"></span>
+                    <span class="hero-indicator" data-slide="1"></span>
+                    <span class="hero-indicator" data-slide="2"></span>
+                    <span class="hero-indicator" data-slide="3"></span>
+                </div>
+            </section>
+            
+            <section class="deals-section">
+                <div class="section-header">
+                    <h2 class="section-title">Today's Best Deals On Takealot</h2>
+                </div>
+                <div class="products-carousel" id="takealotCarousel">
+                    <div class="products-slider" id="takealotSlider"></div>
+                </div>
+                <div class="carousel-indicators" id="takealotIndicators"></div>
+            </section>
+
+            <section class="deals-section">
+                <div class="section-header">
+                    <h2 class="section-title">Today's Best Deals On Amazon</h2>
+                </div>
+                <div class="products-carousel" id="amazonCarousel">
+                    <div class="products-slider" id="amazonSlider"></div>
+                </div>
+                <div class="carousel-indicators" id="amazonIndicators"></div>
+            </section>
+        </main>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>About CompareHubPrices</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#press">Press & Media</a></li>
+                    <li><a href="#partners">Our Partners</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Help & Support</h3>
+                <ul>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#faq">FAQs</a></li>
+                    <li><a href="#shipping">Shipping Info</a></li>
+                    <li><a href="#returns">Returns & Refunds</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+                </div>
+                <div class="newsletter-section">
+                    <h4>Get the Best Deals in Your Inbox</h4>
+                    <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+                        <input type="email" placeholder="Enter your email address" required aria-label="Email address for newsletter">
+                        <button type="submit"><i class="fas fa-paper-plane"></i> Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 CompareHub Prices. All rights reserved. | Built with ❤️ for better shopping experiences.</p>
+        </div>
+    </footer>
+
+   
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ======================
+    // API CONFIGURATION
+    // ======================
+    const API_URL = 'https://xf9zlapr5e.execute-api.af-south-1.amazonaws.com/deals';
+
+    // ======================
+   
+  
+
+    
+
+    
+
+   
+
+    // ======================
+    // HERO CAROUSEL
+    // ======================
+    const heroCarousel = document.querySelector('.hero-carousel');
+    if (heroCarousel) {
+        const heroSlides = heroCarousel.querySelectorAll('.hero-slide');
+        const heroIndicators = heroCarousel.querySelectorAll('.hero-indicator');
+        const prevBtn = heroCarousel.querySelector('.prev-btn');
+        const nextBtn = heroCarousel.querySelector('.next-btn');
+        let currentIndex = 0;
+        let interval;
+        let touchStartX = 0;
+        const slideDuration = 10000;
+
+        function showSlide(index) {
+            heroSlides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            heroIndicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            showSlide((currentIndex + 1) % heroSlides.length);
+        }
+
+        function prevSlide() {
+            showSlide((currentIndex - 1 + heroSlides.length) % heroSlides.length);
+        }
+
+        function startCarousel() {
+            stopCarousel();
+            interval = setInterval(nextSlide, slideDuration);
+        }
+
+        function stopCarousel() {
+            clearInterval(interval);
+        }
+
+        if (heroSlides.length > 0) {
+            showSlide(0);
+            startCarousel();
+
+            if (nextBtn) nextBtn.addEventListener('click', () => {
+                stopCarousel();
+                nextSlide();
+                startCarousel();
+            });
+
+            if (prevBtn) prevBtn.addEventListener('click', () => {
+                stopCarousel();
+                prevSlide();
+                startCarousel();
+            });
+
+            heroIndicators.forEach((indicator, index) => {
+                indicator.addEventListener('click', () => {
+                    stopCarousel();
+                    showSlide(index);
+                    startCarousel();
+                });
+            });
+
+            const handleTouchStart = (e) => {
+                touchStartX = e.touches[0].clientX;
+                stopCarousel();
+            };
+
+            const handleTouchEnd = (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const diff = touchEndX - touchStartX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) prevSlide();
+                    else nextSlide();
+                }
+                startCarousel();
+            };
+
+            heroCarousel.addEventListener('touchstart', handleTouchStart);
+            heroCarousel.addEventListener('touchend', handleTouchEnd);
+            heroCarousel.addEventListener('mouseenter', stopCarousel);
+            heroCarousel.addEventListener('mouseleave', startCarousel);
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') nextSlide();
+                else if (e.key === 'ArrowLeft') prevSlide();
+            });
+        }
+    }
+
+    // ======================
+    // DEALS API FUNCTIONS
+    // ======================
+    async function fetchDealsData() {
+        try {
+            console.log('Fetching deals from:', API_URL);
+            showLoadingState();
+            
+            const response = await fetch(API_URL, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Fetched deals data:', data);
+            
+            processDealsData(data);
+            hideLoadingState();
+            
+        } catch (error) {
+            console.error('Error fetching deals:', error);
+            showErrorState(error.message);
+        }
+    }
+
+    function processDealsData(data) {
+        // Process Takealot data
+        if (data.takealot && Array.isArray(data.takealot)) {
+            const takealotSlides = createSlidesFromProducts(data.takealot, 5);
+            initializeProductCarousel('takealot', takealotSlides);
+        } else if (data.takealot && data.takealot.slides) {
+            initializeProductCarousel('takealot', data.takealot.slides);
+        }
+        
+        // Process Amazon data
+        if (data.amazon && Array.isArray(data.amazon)) {
+            const amazonSlides = createSlidesFromProducts(data.amazon, 5);
+            initializeProductCarousel('amazon', amazonSlides);
+        } else if (data.amazon && data.amazon.slides) {
+            initializeProductCarousel('amazon', data.amazon.slides);
+        }
+    }
+
+    function createSlidesFromProducts(products, productsPerSlide) {
+        const slides = [];
+        for (let i = 0; i < products.length; i += productsPerSlide) {
+            slides.push(products.slice(i, i + productsPerSlide));
+        }
+        return slides;
+    }
+
+    function showLoadingState() {
+        const takealotSlider = document.getElementById('takealotSlider');
+        const amazonSlider = document.getElementById('amazonSlider');
+        
+        const loadingHTML = `
+            <div class="loading-state">
+                <div class="spinner-container">
+                    <div class="spinner"></div>
+                    <p>Loading deals...</p>
+                </div>
+            </div>
+        `;
+        
+        if (takealotSlider) {
+            takealotSlider.innerHTML = loadingHTML.replace('Loading deals...', 'Loading Takealot deals...');
+        }
+        if (amazonSlider) {
+            amazonSlider.innerHTML = loadingHTML.replace('Loading deals...', 'Loading Amazon deals...');
+        }
+    }
+
+    function hideLoadingState() {
+        const loadingStates = document.querySelectorAll('.loading-state');
+        loadingStates.forEach(state => state.remove());
+    }
+
+    function showErrorState(errorMessage) {
+        const takealotSlider = document.getElementById('takealotSlider');
+        const amazonSlider = document.getElementById('amazonSlider');
+        
+        const errorHTML = `
+            <div class="error-state">
+                <h3>Failed to load deals</h3>
+                <p>${errorMessage}</p>
+                <button onclick="window.location.reload()" class="retry-btn">Retry</button>
+            </div>
+        `;
+        
+        if (takealotSlider) takealotSlider.innerHTML = errorHTML;
+        if (amazonSlider) amazonSlider.innerHTML = errorHTML;
+    }
+
+    // ======================
+    // PRODUCT CARD CREATION
+    // ======================
+    function createProductCard(product) {
+        const imageUrl = product.img || product.imageUrl || product.image || '';
+        const productName = product.name || product.model || product.title || 'Product';
+        const currentPrice = product.currentPrice || product.price || 'N/A';
+        const originalPrice = product.originalPrice || '';
+        const discount = product.discount || '';
+        const rating = product.rating || 0;
+        const productUrl = product.url || product.link || '#';
+
+        return `
+            <div class="product-card">
+                <a href="${productUrl}" target="_blank" class="product-link">
+                    <div class="product-image">
+                        <img src="${imageUrl}" alt="${productName}" loading="lazy" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg=='">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${productName}</h3>
+                        <div class="price-container">
+                            ${originalPrice ? `<span class="original-price">${originalPrice}</span>` : ''}
+                            <span class="current-price">${currentPrice}</span>
+                            ${discount ? `<span class="discount">${discount}</span>` : ''}
+                        </div>
+                        ${rating > 0 ? `
+                        <div class="rating">
+                            ${'★'.repeat(Math.floor(rating))}${'☆'.repeat(5 - Math.floor(rating))}
+                            <span class="rating-text">(${rating})</span>
+                        </div>
+                        ` : ''}
+                        <span class="view-deal-btn">View Deal</span>
+                    </div>
+                </a>
+            </div>
+        `;
+    }
+
+    // ======================
+    // CAROUSEL INITIALIZATION
+    // ======================
+    function initializeProductCarousel(store, slidesData) {
+        const slider = document.getElementById(`${store}Slider`);
+        const indicatorsContainer = document.getElementById(`${store}Indicators`);
+        
+        if (!slider || !slidesData || slidesData.length === 0) {
+            console.error(`Could not initialize carousel for ${store}:`, { slider, slidesData });
+            return;
+        }
+
+        // Clear existing content
+        slider.innerHTML = '';
+        if (indicatorsContainer) {
+            indicatorsContainer.innerHTML = '';
+        }
+
+        // Create slides
+        slidesData.forEach((slideProducts, slideIndex) => {
+            const slide = document.createElement('div');
+            slide.className = 'slide';
+            if (slideIndex === 0) slide.classList.add('active');
+            
+            // Create products grid for this slide
+            slide.innerHTML = slideProducts.map(createProductCard).join('');
+            slider.appendChild(slide);
+
+            // Create indicator
+            if (indicatorsContainer) {
+                const indicator = document.createElement('span');
+                indicator.className = 'indicator';
+                if (slideIndex === 0) indicator.classList.add('active');
+                indicator.addEventListener('click', () => showSlide(store, slideIndex));
+                indicatorsContainer.appendChild(indicator);
+            }
+        });
+
+        // Setup carousel functionality
+        setupProductCarousel(store, slidesData.length);
+    }
+
+    function setupProductCarousel(store, totalSlides) {
+        const slider = document.getElementById(`${store}Slider`);
+        const indicatorsContainer = document.getElementById(`${store}Indicators`);
+        const prevBtn = document.querySelector(`[data-carousel="${store}"].carousel-prev`);
+        const nextBtn = document.querySelector(`[data-carousel="${store}"].carousel-next`);
+        
+        if (!slider) return;
+
+        const slides = slider.querySelectorAll('.slide');
+        const indicators = indicatorsContainer ? indicatorsContainer.querySelectorAll('.indicator') : [];
+        let currentIndex = 0;
+        let interval;
+
+        function showSlide(storeType, index) {
+            // Remove active class from all slides and indicators
+            slides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            // Add active class to current slide and indicator
+            if (slides[index]) {
+                slides[index].classList.add('active');
+            }
+            if (indicators[index]) {
+                indicators[index].classList.add('active');
+            }
+            
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            const nextIndex = (currentIndex + 1) % totalSlides;
+            showSlide(store, nextIndex);
+        }
+
+        function prevSlide() {
+            const prevIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+            showSlide(store, prevIndex);
+        }
+
+        function startCarousel() {
+            stopCarousel();
+            if (totalSlides > 1) {
+                interval = setInterval(nextSlide, 14000); // 14 seconds as requested
+            }
+        }
+
+        function stopCarousel() {
+            clearInterval(interval);
+        }
+
+        // Initialize
+        showSlide(store, 0);
+        startCarousel();
+
+        // Navigation event listeners
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                stopCarousel();
+                nextSlide();
+                startCarousel();
+            });
+        }
+
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                stopCarousel();
+                prevSlide();
+                startCarousel();
+            });
+        }
+
+        // Touch events for mobile
+        let touchStartX = 0;
+        slider.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            stopCarousel();
+        });
+
+        slider.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchEndX - touchStartX;
+            
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    prevSlide();
+                } else {
+                    nextSlide();
+                }
+            }
+            startCarousel();
+        });
+
+        // Pause on hover
+        slider.addEventListener('mouseenter', stopCarousel);
+        slider.addEventListener('mouseleave', startCarousel);
+
+        // Make showSlide globally accessible for indicators
+        window[`showSlide_${store}`] = showSlide;
+    }
+
+    // Make showSlide globally accessible
+    window.showSlide = function(store, index) {
+        if (window[`showSlide_${store}`]) {
+            window[`showSlide_${store}`](store, index);
+        }
+    };
+
+    // ======================
+    // SEARCH FUNCTIONALITY
+    // ======================
+    window.performSearch = function(event) {
+        event.preventDefault();
+        const searchInput = document.getElementById('searchInput');
+        const query = searchInput.value.trim();
+        
+        if (query) {
+            // Here you would typically redirect to a search results page
+            // or perform a search API call
+            console.log('Searching for:', query);
+            alert(`Searching for: ${query}`);
+        }
+    };
+
+    // ======================
+    // INITIALIZE EVERYTHING
+    // ======================
+    fetchDealsData(); // Load deals data when page loads
+});
+
+  // Simulate user data
+        const demoUser = {
+            email: 'demo@comparehub.com',
+            name: 'Demo User',
+            avatar: null
+        };
+
+        function getInitials(email) {
+            if (!email) return "";
+            let [name] = email.split('@');
+            let parts = name.split(/[.\-_]/);
+            if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+            return name[0].toUpperCase();
+        }
+
+        function renderSidebarLogin() {
+            const sidebarLogin = document.getElementById('sidebarLogin');
+            const isLoggedIn = true; // Demo mode
+
+            if (isLoggedIn) {
+                sidebarLogin.innerHTML = `
+                    <div class="user-greeting fade-in">
+                        <div class="user-avatar" onclick="goToProfile()">
+                            ${demoUser.avatar ? `<img src="${demoUser.avatar}" alt="Avatar">` : getInitials(demoUser.email)}
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">${demoUser.name}</div>
+                            <div class="user-email">${demoUser.email}</div>
+                            <span class="sign-out" onclick="signOut()">Sign Out</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                sidebarLogin.innerHTML = `
+                    <a href="#login" class="login-btn">
+                        <i class="fas fa-sign-in-alt"></i>Login to CompareHub
+                    </a>
+                `;
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        function toggleSubmenu(element) {
+            const item = element.parentElement;
+            const isActive = item.classList.contains('active');
+            
+            // Close all other submenus
+            document.querySelectorAll('.item.active').forEach(activeItem => {
+                if (activeItem !== item) {
+                    activeItem.classList.remove('active');
+                }
+            });
+            
+            // Toggle current submenu
+            item.classList.toggle('active');
+            
+            // Add animation to submenu items
+            if (!isActive) {
+                const submenuItems = item.querySelectorAll('.submenu .item');
+                submenuItems.forEach((submenuItem, index) => {
+                    setTimeout(() => {
+                        submenuItem.classList.add('slide-in');
+                    }, index * 50);
+                });
+            }
+        }
+
+        function goBack(element) {
+            const item = element.closest('.item');
+            item.classList.remove('active');
+        }
+
+        function performSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value;
+            if (query.trim()) {
+                alert(`Searching for: ${query}`);
+                // Implement actual search functionality
+            }
+        }
+
+        // Search suggestions functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            const suggestions = document.getElementById('searchSuggestions');
+            const querySpan = document.getElementById('searchQuery');
+            
+            if (query.length > 2) {
+                querySpan.textContent = query;
+                suggestions.classList.add('active');
+                
+                // Mock suggestions - replace with actual API call
+                const mockSuggestions = [
+                    'Samsung Galaxy', 'iPhone 15', 'MacBook Pro', 'Sony TV',
+                    'Washing Machine', 'Air Fryer', 'Gaming Laptop', 'Wireless Earbuds'
+                ].filter(item => item.toLowerCase().includes(query));
+                
+                const suggestionsGrid = document.getElementById('suggestionsGrid');
+                suggestionsGrid.innerHTML = mockSuggestions
+                    .map(item => `<div style="padding: 8px 12px; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;" 
+                                  onmouseover="this.style.background='#f0f0f0'" 
+                                  onmouseout="this.style.background='transparent'"
+                                  onclick="selectSuggestion('${item}')">${item}</div>`)
+                    .join('');
+            } else {
+                suggestions.classList.remove('active');
+            }
+        });
+
+        function selectSuggestion(suggestion) {
+            document.getElementById('searchInput').value = suggestion;
+            document.getElementById('searchSuggestions').classList.remove('active');
+            performSearch(new Event('submit'));
+        }
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            const searchContainer = document.querySelector('.search-container');
+            if (!searchContainer.contains(e.target)) {
+                document.getElementById('searchSuggestions').classList.remove('active');
+            }
+        });
+
+        function acceptCookies() {
+            const cookieNotice = document.querySelector('.cookie-notice');
+            cookieNotice.style.display = 'none';
+        }
+
+        // Search functionality
+        document.getElementById('sidebarSearchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const menuItems = document.querySelectorAll('.menu-items .item');
+            
+            menuItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Initialize sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSidebarLogin();
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.sidebar-toggle');
+            
+            if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                closeSidebar();
+            }
+        });
+    </script>
+</body>
+</html>
