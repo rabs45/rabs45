@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="hero-carousel-animations.css">
- <style>
+<style>
         /* =================================
-           BASE & BODY STYLES
+            BASE & BODY STYLES
         ================================= */
         * {
             margin: 0;
@@ -24,7 +24,7 @@
         }
 
         /* =================================
-           HEADER STYLES
+            HEADER STYLES
         ================================= */
         .header {
             position: fixed;
@@ -280,7 +280,7 @@
 
 
         /* =================================
-           SIDEBAR STYLES
+            SIDEBAR STYLES
         ================================= */
         .sidebar {
             position: fixed;
@@ -647,7 +647,7 @@
 
 
         /* =================================
-           MAIN CONTENT & DEMO AREA
+            MAIN CONTENT & DEMO AREA
         ================================= */
         .main-container {
             display: flex;
@@ -682,7 +682,7 @@
         }
 
         /* =================================
-           DEALS & PRODUCT CAROUSEL
+            DEALS & PRODUCT CAROUSEL
         ================================= */
         /* Enhanced Deals Section */
         .deals-section {
@@ -1169,20 +1169,6 @@
             text-decoration: underline;
         }
         
-        .footer-bottom {
-            background: #1a252f;
-            padding: 24px 0;
-            margin-top: 50px;
-            border-top: 1px solid #3a4553;
-        }
-
-        .footer-bottom p {
-            text-align: center;
-            color: #aaa;
-            font-size: 0.9rem;
-            margin: 0 20px;
-        }
-
         /* Social Icons Section */
         .social-icons {
             display: flex;
@@ -1337,7 +1323,7 @@
 
 
         /* =================================
-           RESPONSIVE & MEDIA QUERIES
+            RESPONSIVE & MEDIA QUERIES
         ================================= */
         @media (max-width: 1199px) and (min-width: 1024px) {
             .slide {
@@ -1518,7 +1504,7 @@
 
 
         /* =================================
-           ANIMATIONS & KEYFRAMES
+            ANIMATIONS & KEYFRAMES
         ================================= */
         .fade-in {
             animation: fadeIn 0.3s ease;
@@ -1748,10 +1734,6 @@
                 <h3>About CompareHubPrices</h3>
                 <ul>
                     <li><a href="#about">About Us</a></li>
-                    <li><a href="#how-it-works">How It Works</a></li>
-                    <li><a href="#careers">Careers</a></li>
-                    <li><a href="#press">Press & Media</a></li>
-                    <li><a href="#partners">Our Partners</a></li>
                 </ul>
             </div>
             <div class="footer-section">
@@ -1759,8 +1741,6 @@
                 <ul>
                     <li><a href="#contact">Contact Us</a></li>
                     <li><a href="#faq">FAQs</a></li>
-                    <li><a href="#shipping">Shipping Info</a></li>
-                    <li><a href="#returns">Returns & Refunds</a></li>
                     <li><a href="#privacy">Privacy Policy</a></li>
                     <li><a href="#terms">Terms of Service</a></li>
                 </ul>
@@ -1788,7 +1768,7 @@
         </div>
     </footer>
 
-   
+    
     <script>
 document.addEventListener('DOMContentLoaded', function() {
     // ======================
@@ -1797,14 +1777,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const API_URL = 'https://xf9zlapr5e.execute-api.af-south-1.amazonaws.com/deals';
 
     // ======================
-   
-  
-
+    
     
 
     
 
-   
+    
+
+    
 
     // ======================
     // HERO CAROUSEL
@@ -2209,7 +2189,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchDealsData(); // Load deals data when page loads
 });
 
-  // Simulate user data
+ // Simulate user data
         const demoUser = {
             email: 'demo@comparehub.com',
             name: 'Demo User',
@@ -2324,9 +2304,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const suggestionsGrid = document.getElementById('suggestionsGrid');
                 suggestionsGrid.innerHTML = mockSuggestions
                     .map(item => `<div style="padding: 8px 12px; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;" 
-                                  onmouseover="this.style.background='#f0f0f0'" 
-                                  onmouseout="this.style.background='transparent'"
-                                  onclick="selectSuggestion('${item}')">${item}</div>`)
+                                     onmouseover="this.style.background='#f0f0f0'" 
+                                     onmouseout="this.style.background='transparent'"
+                                     onclick="selectSuggestion('${item}')">${item}</div>`)
                     .join('');
             } else {
                 suggestions.classList.remove('active');
